@@ -1,0 +1,34 @@
+plugins {
+	id 'org.springframework.boot' version '2.7.1'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'war'
+}
+
+group = 'chap09'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	implementation 'javax.servlet:jstl'
+	implementation 'org.projectlombok:lombok:1.18.20'
+	annotationProcessor 'org.projectlombok:lombok:1.18.20'
+//	출처: https://gthoya.tistory.com/entry/Spring-boot-gradle-lombok-cannot-find-symbol [지상 최강의 프로그래머!!:티스토리]
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//	compile('org.apache.tomcat.embed:tomcat-embed-jasper')
+//	compile('javax.servlet:jstl:1.2')
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
