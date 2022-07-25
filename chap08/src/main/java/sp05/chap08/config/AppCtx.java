@@ -3,11 +3,15 @@ package sp05.chap08.config;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import sp05.chap08.dbquery.MemberDao;
-import sp05.chap08.spring.Member;
+import sp05.chap08.spring.*;
 
 
 @Configuration
+@EnableTransactionManagement
 public class AppCtx {
 
     @Bean(destroyMethod = "close")
@@ -26,7 +30,49 @@ public class AppCtx {
     }
 
     @Bean
+    public PlatformTransactionManager transactionManager(){
+        /*
+        PlatformTransactionManager는 스프링이 제공하는 트랜잭션 매니저 인터페이스임.
+        DataSourceTransactionManager를 PlatformTransactionManager로 사용함
+         */
+        DataSourceTransactionManager tm = new DataSourceTransactionManager();
+        tm.setDataSource(dataSource());
+        return tm;
+    }
+
+    @Bean
     public MemberDao memberDao(){
         return new MemberDao(dataSource());
     }
+
+    @Bean
+    public ChangePasswordService changePwdSvc(){
+        ChangePasswordService pwdSvc = new ChangePasswordService();
+        pwdSvc.setMemberDao(memberDao());
+        return pwdSvc;
+    }
+
+    @Bean
+    public MemberRegisterService memberRegSvc(){
+        return new MemberRegisterService(memberDao());
+    }
+
+    @Bean
+    public MemberPrinter memberPrinter(){
+        return new MemberPrinter();
+    }
+
+    @Bean
+    public MemberListPrinter listPrinter(){
+        return new MemberListPrinter(memberDao(), memberPrinter());
+    }
+
+    @Bean
+    public MemberInfoPrinter infoPrinter(){
+        MemberInfoPrinter infoPrinter = new MemberInfoPrinter();
+        infoPrinter.setMemberDao(memberDao());
+        infoPrinter.setPrinter(memberPrinter());
+        return infoPrinter;
+    }
+
 }

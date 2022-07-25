@@ -21,6 +21,10 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jdbc
 	implementation group: 'org.apache.tomcat', name: 'tomcat-jdbc', version: '10.1.0-M16'
 
+	// https://mvnrepository.com/artifact/org.projectlombok/lombok
+	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
+
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
