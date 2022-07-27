@@ -2,6 +2,7 @@ package sp05.chap08.dbquery;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -11,6 +12,7 @@ import sp05.chap08.spring.Member;
 import javax.sql.DataSource;
 
 import java.sql.*;
+import java.util.Arrays;
 import java.util.List;
 
 public class MemberDao {
@@ -73,22 +75,36 @@ public class MemberDao {
 
     public void insert(final Member member){
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(new PreparedStatementCreator() {
-            @Override
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement pstmt = con.prepareStatement(
-                        "insert into MEMBER(EMAIL, PASSWORD, NAME, REGDATE)" +
-                                "values(?, ?, ?, ?)",
-                        new String[] {"ID"}
-                );
+        PreparedStatementCreatorFactory pscf = new PreparedStatementCreatorFactory(
+                "insert into MEMBER(EMAIL, PASSWORD, NAME, REGDATE) values(?, ?, ?, ?)",
+                Types.VARCHAR,
+                Types.VARCHAR,
+                Types.VARCHAR,
+                Types.TIMESTAMP
+        );
+//        pscf.setReturnGeneratedKeys(true);
+        pscf.setGeneratedKeysColumnNames("ID");    //블로그에 정리해두었음 https://velog.io/@hamkua/Spring-JDBC-Generated-keys-not-requested
+        PreparedStatementCreator psc = pscf.newPreparedStatementCreator(Arrays.asList(member.getEmail(), member.getPassword(), member.getName(), member.getRegisterDateTime()));
 
-                pstmt.setString(1, member.getEmail());
-                pstmt.setString(2, member.getPassword());
-                pstmt.setString(3, member.getName());
-                pstmt.setTimestamp(4, Timestamp.valueOf(member.getRegisterDateTime()));
-                return pstmt;
-            }
-        }, keyHolder);
+
+//        jdbcTemplate.update(new PreparedStatementCreator() {
+//            @Override
+//            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+//                PreparedStatement pstmt = con.prepareStatement(
+//                        "insert into MEMBER(EMAIL, PASSWORD, NAME, REGDATE)" +
+//                                "values(?, ?, ?, ?)",
+//                        new String[] {"ID"}
+//                );
+//
+//                pstmt.setString(1, member.getEmail());
+//                pstmt.setString(2, member.getPassword());
+//                pstmt.setString(3, member.getName());
+//                pstmt.setTimestamp(4, Timestamp.valueOf(member.getRegisterDateTime()));
+//                return pstmt;
+//            }
+//        }, keyHolder);
+        jdbcTemplate.update(psc, keyHolder);
+
         Number keyValue = keyHolder.getKey();
         member.setId(keyValue.longValue());
     }
